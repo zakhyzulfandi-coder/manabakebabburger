@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#F77F00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Manaba POS">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Manaba Burger & Kebab POS</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<script src="./app-config.js"></script>
+<style>
+:root{--cream:#fff7e8;--gold:#ffd166;--orange:#f77f00;--brown:#3b2112;--soft:#6b3f22;--line:rgba(97,58,20,.14)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,#fff7e8,#ffebc2);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--brown);overscroll-behavior:none;touch-action:manipulation}
+.app{position:fixed;inset:0;display:flex;flex-direction:column;background:#fff7e8}
+.safe{height:env(safe-area-inset-top);background:linear-gradient(135deg,var(--gold),var(--orange));flex:0 0 auto}
+.wrap{position:relative;flex:1;overflow:hidden}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff7e8}
+.screen{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 20% 0%,rgba(255,209,102,.46),transparent 36%),radial-gradient(circle at 90% 15%,rgba(247,127,0,.25),transparent 32%),linear-gradient(180deg,#fff7e8,#ffebc2);transition:.25s}
+.screen.hide{opacity:0;visibility:hidden;pointer-events:none}
+.card{width:min(430px,100%);padding:24px;border-radius:32px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.82);box-shadow:0 22px 60px rgba(59,33,18,.18);backdrop-filter:blur(18px);text-align:center}
+.logo{width:86px;height:86px;margin:0 auto 16px;display:grid;place-items:center;border-radius:28px;background:linear-gradient(135deg,var(--gold),var(--orange));box-shadow:0 18px 34px rgba(247,127,0,.32);font-size:40px;animation:f 1.8s ease-in-out infinite}
+@keyframes f{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+h1{margin:0 0 8px;font-size:24px;line-height:1.1;letter-spacing:-.5px}
+p{margin:0;color:var(--soft);font-weight:700;line-height:1.55}
+.code{margin-top:14px;padding:12px;border-radius:18px;background:rgba(255,255,255,.65);border:1px solid var(--line);text-align:left;font:12px ui-monospace,Menlo,Consolas,monospace;overflow:auto;white-space:pre}
+.btn{min-height:48px;border:0;border-radius:17px;padding:0 16px;background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--brown);font-weight:900;margin-top:16px}
+.toolbar{position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:25;display:flex;gap:8px}
+.ibtn{width:42px;height:42px;border:0;border-radius:16px;background:rgba(255,255,255,.72);color:var(--brown);box-shadow:0 10px 24px rgba(59,33,18,.12);backdrop-filter:blur(15px);display:grid;place-items:center}
+.ibtn svg{width:20px;height:20px}
+.pill{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;min-height:56px;padding:10px 14px;border-radius:20px;display:none;align-items:center;justify-content:space-between;gap:12px;background:rgba(59,33,18,.92);color:white;box-shadow:0 18px 40px rgba(59,33,18,.28)}
+.pill.show{display:flex}
+.pill strong{display:block;font-size:13px}.pill span{display:block;font-size:12px;opacity:.78}.pill button{min-height:38px;padding:0 14px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--brown);font-weight:950}
+</style>
+</head>
+<body>
+<div class="app"><div class="safe"></div><div class="wrap"><iframe id="appFrame" title="Manaba Burger & Kebab POS" allow="clipboard-read;clipboard-write;fullscreen"></iframe></div></div>
+<div class="toolbar">
+<button class="ibtn" onclick="reloadApp()" aria-label="Muat ulang"><svg viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M20 4v5h-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button id="installBtn" class="ibtn" onclick="installPWA()" aria-label="Install" style="display:none"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v11m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+</div>
+<div id="loading" class="screen"><div class="card"><div class="logo">🍔</div><h1>Manaba Burger & Kebab</h1><p>Membuka aplikasi kasir...</p></div></div>
+<div id="setup" class="screen hide"><div class="card"><div class="logo">⚙️</div><h1>URL Apps Script belum diatur</h1><p>Edit file <b>app-config.js</b>, lalu isi URL Web App Apps Script yang berakhiran <b>/exec</b>.</p><div class="code">appsScriptUrl: 'https://script.google.com/macros/s/AKfycb.../exec'</div><button class="btn" onclick="reloadApp()">Cek Lagi</button></div></div>
+<div id="offline" class="pill"><div><strong>Internet terputus</strong><span>Data kasir membutuhkan koneksi Apps Script.</span></div><button onclick="reloadApp()">Coba Lagi</button></div>
+<div id="update" class="pill"><div><strong>Update tersedia</strong><span>Tekan update untuk memuat versi terbaru.</span></div><button onclick="applyUpdate()">Update</button></div>
+<script>
+let deferredPrompt=null,waitingWorker=null;
+const config=window.MANABA_PWA_CONFIG||{},frame=document.getElementById('appFrame'),loading=document.getElementById('loading'),setup=document.getElementById('setup'),offline=document.getElementById('offline'),update=document.getElementById('update'),installBtn=document.getElementById('installBtn');
+init();
+function init(){preventZoom();registerSW();installPrompt();onlineStatus();loadApp()}
+function validUrl(){const u=String(config.appsScriptUrl||'').trim();return u&&!u.includes('GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT')?u:''}
+function appUrl(){const u=validUrl();if(!u)return'';if(config.forceFreshAppsScript!==true)return u;return u+(u.includes('?')?'&':'?')+'pwa_ts='+Date.now()}
+function loadApp(){const u=appUrl();if(!u){loading.classList.add('hide');setup.classList.remove('hide');return}frame.src=u;frame.onload=()=>setTimeout(()=>loading.classList.add('hide'),450);setTimeout(()=>loading.classList.add('hide'),Number(config.maxLoadingMs||7000))}
+function reloadApp(){if(!navigator.onLine){showOffline(true);return}loading.classList.remove('hide');setup.classList.add('hide');const u=appUrl();if(!u){loading.classList.add('hide');setup.classList.remove('hide');return}frame.src=u;setTimeout(()=>loading.classList.add('hide'),900)}
+function onlineStatus(){showOffline(!navigator.onLine);addEventListener('online',()=>{showOffline(false);reloadApp()});addEventListener('offline',()=>showOffline(true))}
+function showOffline(v){offline.classList.toggle('show',v)}
+function registerSW(){if(!('serviceWorker'in navigator))return;addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').then(r=>{r.addEventListener('updatefound',()=>{const w=r.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller){waitingWorker=w;update.classList.add('show')}})});if(r.waiting){waitingWorker=r.waiting;update.classList.add('show')}}).catch(console.warn);navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload())})}
+function applyUpdate(){if(waitingWorker)waitingWorker.postMessage({type:'SKIP_WAITING'});else location.reload()}
+function installPrompt(){addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='grid'});addEventListener('appinstalled',()=>{deferredPrompt=null;installBtn.style.display='none'})}
+async function installPWA(){if(!deferredPrompt){alert('Buka menu browser lalu pilih Install app / Tambahkan ke layar utama.');return}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.style.display='none'}
+function preventZoom(){document.addEventListener('gesturestart',e=>e.preventDefault());let last=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-last<=300)e.preventDefault();last=now},{passive:false});document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false})}
+</script>
+</body>
+</html>
